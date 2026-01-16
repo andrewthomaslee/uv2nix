@@ -1,6 +1,7 @@
 {
   workspace,
   pythonSets,
+  inputs,
   ...
 }: {
   perSystem = {
@@ -10,8 +11,14 @@
     self',
     ...
   }: {
-    packages = {
-      default = pythonSets.${system}.mkVirtualEnv "hello-world-env" workspace.deps.default;
+    packages = let
+      pythonSet = pythonSets.${system};
+      inherit (pkgs.callPackages inputs.pyproject-nix.build.util {}) mkApplication;
+    in {
+      default = mkApplication {
+        venv = pythonSet.mkVirtualEnv "hello-world-env" workspace.deps.default;
+        package = pythonSet.hello-world;
+      };
     };
   };
 }
