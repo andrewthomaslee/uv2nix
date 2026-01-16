@@ -1,4 +1,8 @@
-{...}: {
+{
+  workspace,
+  pythonSets,
+  ...
+}: {
   perSystem = {
     pkgs,
     system,
@@ -7,7 +11,7 @@
     ...
   }: {
     packages = {
-      default = pkgs.hello;
+      default = pythonSets.${system}.mkVirtualEnv "hello-world-env" workspace.deps.default;
     };
   };
 }

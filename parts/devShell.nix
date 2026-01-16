@@ -1,4 +1,9 @@
-{...}: {
+{
+  workspace,
+  editableOverlay,
+  pythonSets,
+  ...
+}: {
   perSystem = {
     pkgs,
     system,
@@ -15,18 +20,31 @@
         ref = "master";
         rev = "7f2555c2fe7a1f248ed2d4301e46c8eebcbbc4e2";
       };
+
+      pythonSet = pythonSets.${system}.overrideScope editableOverlay;
+      virtualenv = pythonSet.mkVirtualEnv "hello-world-dev" workspace.deps.all;
     in {
       default = pkgs.mkShell {
         buildInputs = with pkgs; [bash];
-        packages = with pkgs; [
-          httpie
-          kubectl
-          k9s
-          kompose
-        ];
+        packages = with pkgs;
+          [
+            httpie
+            kubectl
+            k9s
+            kompose
+            uv
+          ]
+          ++ [
+            virtualenv
+          ];
+        env = {
+          UV_NO_SYNC = "1";
+          UV_PYTHON = pythonSet.python.interpreter;
+          UV_PYTHON_DOWNLOADS = "never";
+        };
         shellHook = ''
+          unset PYTHONPATH
           export REPO_ROOT=$(git rev-parse --show-toplevel)
-          export EDITOR=${pkgs.vim}/bin/vim
           export SHELL=$(which bash)
           if [ -f $REPO_ROOT/.env ]; then
             source $REPO_ROOT/.env
