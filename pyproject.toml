@@ -1,12 +1,16 @@
 [project]
 name = "hello-world"
 version = "0.1.0"
-description = "Add your description here"
+description = "python project managed by uv2nix"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Andrew Lee", email = "andrewthomaslee.business@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [ ]
 
 [project.scripts]
-hello = "hello_world:hello"
+hello_world = "hello_world:hello"
+howdy_yall = "hello_world:howdy"
 
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]

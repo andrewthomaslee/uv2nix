@@ -1,3 +1,4 @@
+# https://github.com/pyproject-nix/uv2nix
 {
   description = "hello world application using uv2nix";
 
@@ -34,6 +35,7 @@
       lib,
       ...
     }: let
+      # Supported systems
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -47,15 +49,26 @@
         ./parts/nixosModules.nix
       ];
 
+      # pass args to the rest of flake-parts in ./parts
       _module.args = let
+        # https://pyproject-nix.github.io/uv2nix/lib/workspace.html
+        # Load a workspace from a workspace root
+        # Will recursively discover, load & parse all necessary member projects in a uv workspace
         workspace = inputs.uv2nix.lib.workspace.loadWorkspace {workspaceRoot = ./.;};
+
+        # https://pyproject-nix.github.io/uv2nix/lib/overlays.html
+        # Generate an overlay to use with pyproject.nix's build infrastructure.
         overlay = workspace.mkPyprojectOverlay {
           sourcePreference = "wheel";
         };
+
+        # Uv2nix supports editable packages, but requires you to generate a separate overlay & package set
         editableOverlay = workspace.mkEditablePyprojectOverlay {
           root = "$REPO_ROOT";
         };
 
+        # Helper function to generate a python set for a given system
+        # Creates a attrset of pythonSets for use like `pythonSets.${system}`
         mkPythonSet = system: let
           pkgs = inputs.nixpkgs.legacyPackages.${system};
         in
@@ -69,6 +82,7 @@
             ]
           );
 
+        # generate a python set for each supported system
         pythonSets = lib.genAttrs systems mkPythonSet;
       in {
         inherit workspace overlay editableOverlay pythonSets;
