@@ -24,6 +24,8 @@ result
 result-*
 .direnv/
 .pytest_cache/
+pyrefly.json
+ruff.json
 .coverage
 .coverage.*
 htmlcov/

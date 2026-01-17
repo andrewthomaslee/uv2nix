@@ -72,6 +72,7 @@
         # Creates a attrset of pythonSets for use like `pythonSets.${system}`
         mkPythonSet = system: let
           pkgs = inputs.nixpkgs.legacyPackages.${system};
+          inherit (pkgs.stdenv) mkDerivation;
         in
           (pkgs.callPackage inputs.pyproject-nix.build.packages {
             # The version of python to use ie python314 from nixpkgs
@@ -79,8 +80,73 @@
           }).overrideScope
           (
             lib.composeManyExtensions [
-              inputs.pyproject-build-systems.overlays.wheel
+              inputs.pyproject-build-systems.overlays.default
               overlay
+              # Add tests to overlay for `nix flake check`
+              (final: prev: {
+                hello-world = prev.hello-world.overrideAttrs (old: {
+                  passthru =
+                    (old.passthru or {})
+                    // {
+                      tests = let
+                        virtualenv = final.mkVirtualEnv "hello-world-venv-tests" {
+                          hello-world = ["dev"];
+                        };
+                      in
+                        (old.tests or {})
+                        // {
+                          # Run pytest with coverage
+                          pytest = mkDerivation {
+                            name = "${final.hello-world.name}-pytest";
+                            inherit (final.hello-world) src;
+                            nativeBuildInputs = [virtualenv];
+                            dontConfigure = true;
+                            buildPhase = ''
+                              runHook preBuild
+                              pytest --cov ${./src/tests} --cov-report html ${./src/tests}
+                              runHook postBuild
+                            '';
+                            installPhase = ''
+                              runHook preInstall
+                              mv htmlcov $out
+                              runHook postInstall
+                            '';
+                          };
+                          # Run pyrefly type checker
+                          pyrefly = mkDerivation {
+                            name = "${final.hello-world.name}-pyrefly";
+                            inherit (final.hello-world) src;
+                            nativeBuildInputs = [virtualenv];
+                            dontConfigure = true;
+                            dontInstall = true;
+                            buildPhase = ''
+                              runHook preBuild
+                              mkdir $out
+                              pyrefly check ${./src} --debug-info $out/pyrefly.json --output-format json --config ${./pyproject.toml}
+                              runHook postBuild
+                            '';
+                          };
+                          # Run ruff linter
+                          ruff = mkDerivation {
+                            name = "${final.hello-world.name}-ruff";
+                            inherit (final.hello-world) src;
+                            nativeBuildInputs = [virtualenv];
+                            dontConfigure = true;
+                            buildPhase = ''
+                              runHook preBuild
+                              ruff check ${./src} --ignore F401 --output-format json -o ruff.json
+                              runHook postBuild
+                            '';
+                            installPhase = ''
+                              runHook preInstall
+                              mv ruff.json $out
+                              runHook postInstall
+                            '';
+                          };
+                        };
+                    };
+                });
+              })
             ]
           );
 

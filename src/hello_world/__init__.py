@@ -1,6 +1,10 @@
-def hello() -> None:
-    print("Hello from hello-world! 👋")
+def hello() -> str:
+    msg = "Hello from hello-world! 👋"
+    print(msg)
+    return msg
 
 
-def howdy() -> None:
-    print("Howdy Y'all! 🤠")
+def howdy() -> str:
+    msg = "Howdy Y'all! 🤠"
+    print(msg)
+    return msg
