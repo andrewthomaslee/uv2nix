@@ -23,6 +23,14 @@ To build the resulting package, run:
 nix build
 ```
 
+## Static Analysis
+To run static analysis tools `ruff`, `pyrefly`, `pytest`, and `alejandra` run:
+
+```bash
+nix flake check
+```
+
+
 The built package will be available in the `result` symlink.
 
 ## NixOS Module
