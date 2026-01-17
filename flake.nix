@@ -45,6 +45,7 @@
 
       imports = [
         ./parts/devShell.nix
+        ./parts/flake.nix
         ./parts/packages.nix
         ./parts/nixosModules.nix
       ];
