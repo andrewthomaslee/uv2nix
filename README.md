@@ -1,6 +1,6 @@
 # uv2nix Python Template Project
 
-This is a template project demonstrating how to manage a Python package using [Nix flakes](https://nixos.org/manual/nix/stable/package-management/flakes.html) and [uv2nix](https://github.com/andrewthomaslee/uv2nix) for reproducible dependency management.
+This is a template project demonstrating how to manage a Python package using [Nix flakes](https://nixos.wiki/wiki/Flakes) and [uv2nix](https://github.com/pyproject-nix/uv2nix) for reproducible dependency management.
 
 ## Prerequisites
 
