@@ -36,6 +36,5 @@ dmypy.json
 .env
 .env.*
 !.env.example
-.vscode/
 .idea/
 .DS_Store
