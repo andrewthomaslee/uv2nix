@@ -1,4 +1,8 @@
-{pythonSets, ...}: {
+{
+  self,
+  pythonSets,
+  ...
+}: {
   perSystem = {
     pkgs,
     system,
@@ -27,6 +31,12 @@
           runHook postInstall
         '';
       };
+    };
+  };
+  flake.templates = {
+    default = {
+      path = self;
+      description = "hello world application using uv2nix";
     };
   };
 }
