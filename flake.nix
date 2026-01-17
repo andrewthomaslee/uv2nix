@@ -73,7 +73,8 @@
           pkgs = inputs.nixpkgs.legacyPackages.${system};
         in
           (pkgs.callPackage inputs.pyproject-nix.build.packages {
-            python = pkgs.python314;
+            # The version of python to use ie python314 from nixpkgs
+            python = pkgs.python314; # https://search.nixos.org/packages?channel=unstable&show=python314&query=python314
           }).overrideScope
           (
             lib.composeManyExtensions [

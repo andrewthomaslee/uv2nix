@@ -31,9 +31,9 @@
       virtualenv = pythonSet.mkVirtualEnv "hello-world-dev" workspace.deps.all;
     in {
       default = pkgs.mkShell {
-        buildInputs = with pkgs; [bash];
-        packages = with pkgs;
+        buildInputs = with pkgs;
           [
+            bash
             podman
             podman-compose
             uv
