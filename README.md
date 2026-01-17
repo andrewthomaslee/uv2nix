@@ -28,3 +28,25 @@ The built package will be available in the `result` symlink.
 ## NixOS Module
 
 This flake also provides a [NixOS module](parts/nixosModules.nix) that can be included in your `nixosConfiguration` to easily install and configure the package on a NixOS system.
+
+Add the flake inputs of your flake
+```nix
+#flake.nix
+{
+    inputs = {
+        hello-world = {
+            url = "git+https://github.com/andrewthomaslee/uv2nix.git";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+    }
+}
+```
+and then include the module in your `nixosConfiguration`
+```nix
+#nixosConfiguration.nix
+{
+    imports = [
+        inputs.hello-world.nixosModules.default
+    ];
+}
+```
