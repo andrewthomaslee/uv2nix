@@ -50,8 +50,10 @@
           unset PYTHONPATH
           export REPO_ROOT=$(git rev-parse --show-toplevel)
           export SHELL=$(which bash)
-          if [ -f $REPO_ROOT/.env ]; then
-            source $REPO_ROOT/.env
+          if [ -f $REPO_ROOT/.env.local ]; then
+            set -a
+            source $REPO_ROOT/.env.local
+            set +a
           fi
 
           source ${bash_aliases}
