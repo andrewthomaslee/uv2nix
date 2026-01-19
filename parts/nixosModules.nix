@@ -13,7 +13,7 @@
         # OCI (Docker) containers to run as systemd services
         # https://search.nixos.org/options?channel=unstable&query=virtualisation.oci-containers
         virtualisation.oci-containers.containers.hello-world = {
-          image = "${image.imageTag}:${image.imageTag}";
+          image = "${image.imageName}:${image.imageTag}";
           imageStream = image;
         };
       };
