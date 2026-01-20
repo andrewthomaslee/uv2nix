@@ -1,0 +1,8 @@
+services:
+  hello-world:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: "no"
+    tty: true
+    stdin_open: true
