@@ -42,33 +42,31 @@
       '';
 
       # common env vars for all shells
-      devEnv = {
+      env = {
         UV_PYTHON_DOWNLOADS = "never";
         UV_PYTHON = pythonSet.python.interpreter;
       };
 
       # common packages for all shells
-      devPackages = with pkgs; [
+      packages = with pkgs; [
         podman
         podman-compose
         uv
       ];
     in {
+      # pure shell with venv built in
       default = pkgs.mkShell {
-        inherit shellHook;
-        buildInputs =
-          [pkgs.bash]
-          ++ [venv]
-          ++ devPackages;
-        env = devEnv // {UV_NO_SYNC = "1";};
+        inherit shellHook packages;
+        buildInputs = [pkgs.bash venv];
+        env = env // {UV_NO_SYNC = "1";};
       };
+      # impure shell with `uv sync` and no bash for tricky environments
       impure = pkgs.mkShell {
+        inherit packages;
         shellHook = shellHook + "uv sync";
-        buildInputs =
-          [pythonSet.python]
-          ++ devPackages;
+        buildInputs = [pythonSet.python];
         env =
-          devEnv
+          env
           // lib.optionalAttrs pkgs.stdenv.isLinux {
             LD_LIBRARY_PATH = lib.makeLibraryPath pkgs.pythonManylinuxPackages.manylinux1;
           };
