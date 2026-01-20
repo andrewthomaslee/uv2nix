@@ -4,6 +4,7 @@
         "mkhl.direnv",
         "jnoortheen.nix-ide",
         "charliermarsh.ruff",
-        "meta.pyrefly"
+        "meta.pyrefly",
+        "elagil.pre-commit-helper"
     ]
 }

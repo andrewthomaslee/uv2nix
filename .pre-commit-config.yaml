@@ -1,0 +1,7 @@
+repos:
+  - repo: local
+    hooks:
+      - id: nfc
+        name: nfc
+        entry: nix flake check --all-systems
+        language: system
