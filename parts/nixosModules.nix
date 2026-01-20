@@ -1,22 +1,36 @@
-{self, ...}: {
+{
+  self,
+  projectName,
+  projectScripts,
+  ...
+}: {
   flake = {
-    nixosModules = {
-      default = {pkgs, ...}: {
-        # include our package into the NixOS system packages
-        environment.systemPackages = [
-          self.packages.${pkgs.stdenv.hostPlatform.system}.default
-        ];
-      };
-      oci = {pkgs, ...}: let
-        image = self.packages.${pkgs.stdenv.hostPlatform.system}.container-stream;
-      in {
-        # OCI (Docker) containers to run as systemd services
-        # https://search.nixos.org/options?channel=unstable&query=virtualisation.oci-containers
-        virtualisation.oci-containers.containers.hello-world = {
-          image = "${image.imageName}:${image.imageTag}";
-          imageStream = image;
+    nixosModules = let
+      # Function that creates a NixOS module for a specific script name
+      mkOciModule = scriptName: {
+        name = "oci-${scriptName}";
+        value = {pkgs, ...}: let
+          # fetch the packages from this flake
+          image = self.packages.${pkgs.stdenv.hostPlatform.system}."container-stream-${scriptName}";
+        in {
+          # The NixOS Module
+          virtualisation.oci-containers.containers."${projectName}-${scriptName}" = {
+            image = "${image.imageName}:${image.imageTag}";
+            imageStream = image;
+          };
         };
       };
-    };
+      # Convert list of scripts to attrset of modules
+      dynamicModules = builtins.listToAttrs (map mkOciModule projectScripts);
+    in
+      {
+        default = {pkgs, ...}: {
+          environment.systemPackages = [
+            self.packages.${pkgs.stdenv.hostPlatform.system}.default
+          ];
+        };
+      }
+      # merge the modules into a single attrset
+      // dynamicModules;
   };
 }

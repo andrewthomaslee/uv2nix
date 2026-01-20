@@ -44,6 +44,7 @@
       inherit systems;
 
       imports = [
+        ./parts/apps.nix
         ./parts/devShell.nix
         ./parts/flake.nix
         ./parts/packages.nix
@@ -52,6 +53,11 @@
 
       # pass args to the rest of flake-parts in ./parts
       _module.args = let
+        # Parse pyproject.toml
+        project = builtins.fromTOML (builtins.readFile ./pyproject.toml);
+        projectName = project.project.name;
+        projectScripts = builtins.attrNames project.project.scripts;
+
         # https://pyproject-nix.github.io/uv2nix/lib/workspace.html
         # Load a workspace from a workspace root
         # Will recursively discover, load & parse all necessary member projects in a uv workspace
@@ -84,21 +90,21 @@
               overlay
               # Add tests to overlay for `nix flake check`
               (final: prev: {
-                hello-world = prev.hello-world.overrideAttrs (old: {
+                ${projectName} = prev.${projectName}.overrideAttrs (old: {
                   passthru =
                     (old.passthru or {})
                     // {
                       tests = let
-                        virtualenv = final.mkVirtualEnv "hello-world-venv-tests" {
-                          hello-world = ["dev"];
+                        virtualenv = final.mkVirtualEnv "${projectName}-venv-tests" {
+                          ${projectName} = ["dev"];
                         };
                       in
                         (old.tests or {})
                         // {
                           # Run pytest with coverage
                           pytest = mkDerivation {
-                            name = "${final.hello-world.name}-pytest";
-                            inherit (final.hello-world) src;
+                            name = "${final.${projectName}.name}-pytest";
+                            inherit (final.${projectName}) src;
                             nativeBuildInputs = [virtualenv];
                             dontConfigure = true;
                             buildPhase = ''
@@ -114,8 +120,8 @@
                           };
                           # Run pyrefly type checker
                           pyrefly = mkDerivation {
-                            name = "${final.hello-world.name}-pyrefly";
-                            inherit (final.hello-world) src;
+                            name = "${final.${projectName}.name}-pyrefly";
+                            inherit (final.${projectName}) src;
                             nativeBuildInputs = [virtualenv];
                             dontConfigure = true;
                             dontInstall = true;
@@ -128,8 +134,8 @@
                           };
                           # Run ruff linter
                           ruff = mkDerivation {
-                            name = "${final.hello-world.name}-ruff";
-                            inherit (final.hello-world) src;
+                            name = "${final.${projectName}.name}-ruff";
+                            inherit (final.${projectName}) src;
                             nativeBuildInputs = [virtualenv];
                             dontConfigure = true;
                             buildPhase = ''
@@ -153,7 +159,7 @@
         # generate a python set for each supported system
         pythonSets = lib.genAttrs systems mkPythonSet;
       in {
-        inherit workspace overlay editableOverlay pythonSets;
+        inherit workspace overlay editableOverlay pythonSets project projectName projectScripts;
       };
     });
 }

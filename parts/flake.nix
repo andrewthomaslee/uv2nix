@@ -1,20 +1,19 @@
 {
   self,
   pythonSets,
+  projectName,
   ...
 }: {
   perSystem = {
     pkgs,
     system,
-    inputs',
-    self',
     ...
   }: {
     # Use alejandra for 'nix fmt'
     formatter = pkgs.alejandra;
 
     checks = {
-      inherit (pythonSets.${system}.hello-world.passthru.tests) ruff pyrefly pytest;
+      inherit (pythonSets.${system}.${projectName}.passthru.tests) ruff pyrefly pytest;
       alejandra = pkgs.stdenv.mkDerivation {
         name = "alejandra";
         src = ../.;
