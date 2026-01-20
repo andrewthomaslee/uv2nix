@@ -1,3 +1,8 @@
 {
-    "python.defaultInterpreterPath": "${env:UV_PYTHON}"
+    "python.defaultInterpreterPath": "${env:UV_PYTHON}",
+    "python.testing.pytestArgs": [
+        "src"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

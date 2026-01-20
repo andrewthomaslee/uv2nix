@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "ms-vscode-remote.remote-containers",
+        "mkhl.direnv",
+        "jnoortheen.nix-ide",
+        "charliermarsh.ruff",
+        "meta.pyrefly"
+    ]
+}
